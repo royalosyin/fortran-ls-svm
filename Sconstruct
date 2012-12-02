@@ -1,0 +1,57 @@
+#!/usr/bin/python invoke_using_scons
+# -*- coding: utf-8 -*-
+# This is a build script for use with flssvm.
+
+import sys, os, platform
+
+# version number for this flssvm build:
+version = "0.5"
+
+# version number for python, useful on Windows
+pyversion = "%d.%d" % (sys.version_info[0],sys.version_info[1])
+
+env = DefaultEnvironment()
+
+#env.BuildDir('build/','src/')
+
+FC='gfortran'
+env['FORTRANMODDIRPREFIX']='-J'
+
+env['FORTRANMODDIR']='include/'
+env['FORTRANPATH']='include/'
+env['F90PATH']='include/'
+env['F95PATH']='include/'
+env['BuildDir']='include/'
+env['TargetDir']='include/'
+
+if ARGUMENTS.get('FC','0') != '0':
+	FC=ARGUMENTS.get('FC','0')
+	env['FORTRAN']=FC
+	env['link']=FC
+	env['F90']=FC
+	env['F95']=FC
+	env['F77']=FC
+	if FC == 'gfortran':
+		env['FORTRANMODDIRPREFIX']='-J'
+	if FC == 'g95':
+		env['FORTRANMODDIRPREFIX']='-fmod='
+
+if ARGUMENTS.get('CF','0') != '0':
+	CF=ARGUMENTS.get('CF','0')
+	env['F95FLAGS']=CF
+	env['F90FLAGS']=CF
+	env['FORTRANFLAGS']=CF
+
+
+src_files = ['src/flssvm_utilities.f90',
+                      'src/flssvm_predict.f90',
+                      'src/flssvm_train.f90',
+                      'src/flssvm_main.f90']
+
+flssvm = env.Program('bin/flssvm',src_files)
+
+
+#if ARGUMENTS.get('install','0') != ' ':
+	#print ARGUMENTS.get('install','0')
+regression = env.Program('bin/svm_r_datagen','extra/svm_r_datagen.f90')
+clasification = env.Program('bin/svm_c_datagen','extra/svm_c_datagen.f90')
